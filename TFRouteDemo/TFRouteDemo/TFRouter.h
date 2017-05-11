@@ -63,4 +63,6 @@
 @property (nonatomic, strong) TFRouteRequest *request;
 @property (nonatomic, strong) TFRouteResponse *response;
 
+@property (nonatomic, strong) NSString *routeDefaultClassName;
+
 @end

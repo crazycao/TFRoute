@@ -125,61 +125,87 @@
         return;
     }
     
-    
-    if (self.routeTable[scheme][server][key]) {
-        // 获取类名
-        NSString *className = self.routeTable[scheme][server][key];
+    if (scheme != nil && [scheme isEqualToString:@"action"]) {
+        NSLog(@"暂不支持操作");
         
-        Class clazz = NSClassFromString(className);
-        
-        if ([clazz isSubclassOfClass:[UIViewController class]]) {
-            
-            // 初始化类
-            UIViewController *controller = [[clazz alloc] init];
-            
-            // 获取类的属性列表
-            unsigned int count;
-            objc_property_t *properties = class_copyPropertyList(clazz, &count);
-            
-            NSMutableArray *classPropertyArray = [NSMutableArray array];
-            for (int i = 0; i < count; i++) {
-                
-                objc_property_t property = properties[i];
-                
-                const char *cName = property_getName(property);
-                
-                NSString *name = [NSString stringWithCString:cName encoding:NSUTF8StringEncoding];
-                [classPropertyArray addObject:name];
-            }
-            
-            // 设置相应的属性
-            [classPropertyArray enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                
-                if (parameterDict[obj]) {
-                    [controller setValue:parameterDict[obj] forKey:obj];
-                }
-                
-            }];
+        [self returnError:404 localizedDescription:@"暂不支持route调用操作" byCompletionBlock:completion];
 
-            [self routeToViewController:controller completion:completion];
-        }
+        return;
     }
     else {
-        
-        RouteDefaultViewController *viewController = [[RouteDefaultViewController alloc] init];
-        
-        if (self.request.url != nil) {
-            viewController.url = self.request.url;
+    
+        if (self.routeTable[scheme][server][key]) {
+            // 获取类名
+            NSString *className = self.routeTable[scheme][server][key];
+            
+            Class clazz = NSClassFromString(className);
+            
+            if ([clazz isSubclassOfClass:[UIViewController class]]) {
+                
+                // 初始化类
+                UIViewController *controller = [[clazz alloc] init];
+                
+                // 获取类的属性列表
+                unsigned int count;
+                objc_property_t *properties = class_copyPropertyList(clazz, &count);
+                
+                NSMutableArray *classPropertyArray = [NSMutableArray array];
+                for (int i = 0; i < count; i++) {
+                    
+                    objc_property_t property = properties[i];
+                    
+                    const char *cName = property_getName(property);
+                    
+                    NSString *name = [NSString stringWithCString:cName encoding:NSUTF8StringEncoding];
+                    [classPropertyArray addObject:name];
+                }
+                
+                // 设置相应的属性
+                [classPropertyArray enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    
+                    if (parameterDict[obj]) {
+                        [controller setValue:parameterDict[obj] forKey:obj];
+                    }
+                    
+                }];
+                
+                [self routeToViewController:controller completion:completion];
+            }
         }
         else {
-            viewController.url = @"https://www.baidu.com";
+            
+            if (self.routeDefaultClassName != nil) {
+                id defaultClass = [[NSClassFromString(self.routeDefaultClassName) alloc] init];
+                
+                if (defaultClass && [defaultClass isKindOfClass:[UIViewController class]]) {
+                    if ([defaultClass respondsToSelector:@selector(setUrl:)] && self.request.url != nil) {
+                        [defaultClass performSelector:@selector(setUrl:) withObject:self.request.url];
+                    }
+                    
+                    [self routeToViewController:defaultClass completion:completion];
+                }
+                else {
+                    [self routeToDefultViewController:completion];
+                }
+            }
+            else {
+                [self routeToDefultViewController:completion];
+            }
         }
-        
-        [self routeToViewController:viewController completion:completion];
-
     }
 
     return;
+}
+
+- (void)routeToDefultViewController:(void(^)(NSError *error, id reponseData))completion
+{
+    RouteDefaultViewController *viewController = [[RouteDefaultViewController alloc] init];
+    
+    if (self.request.url != nil) {
+        viewController.url = self.request.url;
+    }
+    
+    [self routeToViewController:viewController completion:completion];
 }
 
 - (void)routeToViewController:(UIViewController *)viewController completion:(void(^)(NSError *error, id reponseData))completion
@@ -192,11 +218,17 @@
     
     if (currentVC.navigationController != nil) {
         [currentVC.navigationController pushViewController:viewController animated:YES];
+        
+        TFRouteResponse *response = [[TFRouteResponse alloc] initWithUrl:self.request.url statusCode:200];
+        response.source = currentVC;
+        response.target = viewController;
+        
+        self.response = response;
+        completion(nil, response);
     }
     else {
         
         UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
-//        navigationController.navigationBar.
         
         __block TFRouter *blockSelf = self;
         [currentVC presentViewController:navigationController animated:YES completion:^{
