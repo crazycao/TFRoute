@@ -6,8 +6,32 @@
 	<dict>
 		<key>m.taofen8.com</key>
 		<dict>
-			<key>wl</key>
-			<string>WebViewController</string>
+			<key>ai</key>
+			<string>AiTaoBaoWebViewController</string>
+			<key>b2c</key>
+			<string>B2CWebViewController</string>
+			<key>bcw</key>
+			<string>BaiChuanWebViewController</string>
+			<key>bd</key>
+			<string>BrandDetailViewController</string>
+			<key>bl</key>
+			<string>BuyWebViewController</string>
+			<key>br</key>
+			<string>BrandViewController</string>
+			<key>bw</key>
+			<string>BaseWebViewController</string>
+			<key>ca</key>
+			<string>CategoryViewController</string>
+			<key>ccs</key>
+			<string>ContactServiceViewController</string>
+			<key>cd</key>
+			<string>CavilDetailViewController</string>
+			<key>ch</key>
+			<string>ChargeController</string>
+			<key>cjd</key>
+			<string>JDCartWebViewController</string>
+			<key>clb</key>
+			<string>CavilLabelViewController</string>
 		</dict>
 	</dict>
 </dict>

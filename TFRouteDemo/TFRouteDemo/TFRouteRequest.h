@@ -20,8 +20,10 @@
 
 @property (strong, nonatomic) TFURLInfo *urlInfo;
 
-- (instancetype) initWithUrl:(NSString *)url; // 通过url初始化路由请求，url会被nginx替换成ruleType和replacement
+- (instancetype)initWithUrl:(NSString *)url; // 通过url初始化路由请求，url会被nginx替换成ruleType和replacement
 //- (instancetype) initWithRule:(NSString *)ruleType andReplacement:(NSString *)replacement; // 通过ruleType和replacement初始化路由请求，通过这种方法初始化时不会调用nginx方法
 //- (void)setSourceVC:(UIViewController *)sourceVC; //设置来源界面，若未设置或设置为nil，NativeRoute会尽力获取到当前最上层的VC以保证成功路由
+- (instancetype)initWithURLInfo:(TFURLInfo *)urlInfo;
+- (instancetype)initWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameter;
 
 @end

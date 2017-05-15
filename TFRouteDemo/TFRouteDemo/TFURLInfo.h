@@ -10,10 +10,10 @@
 
 @interface TFURLInfo : NSObject
 
-@property (readonly, copy) NSString *scheme;
-@property (readonly, copy) NSString *server;
-@property (readonly, copy) NSString *key;
-@property (readonly, copy) NSDictionary *parameter;
+@property (nonatomic, copy) NSString *scheme;
+@property (nonatomic, copy) NSString *server;
+@property (nonatomic, copy) NSString *key;
+@property (nonatomic, strong) NSDictionary *parameter;
 
 - (instancetype)initWithUrl:(NSString *)urlString;
 

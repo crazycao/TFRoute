@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "TFRouteRequest.h"
 #import "TFRouteResponse.h"
+#import "UIViewController+CurrentVC.h"
 
 @interface TFRouter : NSObject
 
@@ -17,7 +18,7 @@
  初始化
  */
 
-+ (id)shared;
++ (instancetype)shared;
 
 
 //- (void)registerScheme

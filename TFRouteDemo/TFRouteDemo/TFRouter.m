@@ -9,7 +9,6 @@
 #import "TFRouter.h"
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
-#import "UIViewController+CurrentVC.h"
 #import "RouteDefaultViewController.h"
 
 
@@ -53,7 +52,7 @@
 
 @implementation TFRouter
 
-+(id)shared {
++(instancetype)shared {
     
     static dispatch_once_t onceToken;
     static TFRouter *router;
@@ -93,6 +92,7 @@
     }
     
     TFRouteRequest *request = [[TFRouteRequest alloc] initWithUrl:url];
+    self.request = request;
     
     if (request == nil) {
         [self returnError:-1 localizedDescription:nil byCompletionBlock:completion];
@@ -120,10 +120,14 @@
 - (void)routeWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameterDict completion:(void(^)(NSError *error, id reponseData))completion
 {
     
+    TFRouteRequest *request = [[TFRouteRequest alloc] initWithScheme:scheme server:server key:key parameter:parameterDict];
+    self.request = request;
+
     if (self.routeTable == nil) {
         [self returnError:-1 localizedDescription:nil byCompletionBlock:completion];
         return;
     }
+    
     
     if (scheme != nil && [scheme isEqualToString:@"action"]) {
         NSLog(@"暂不支持操作");
