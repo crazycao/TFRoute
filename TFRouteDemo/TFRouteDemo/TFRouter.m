@@ -16,44 +16,13 @@
 
 @interface TFRouter ()
 
-/*
- @param routeTable 从RouteTable.plist读取的路由表
- 
- 方案一：
- {
-    "scheme": {
-                    "server": {
-                                    "key": {
-                                                "ClassName" : ClassName,
-                                                "PropertyList" : [PropertyName, PropertyName, ...],
-                                                "FunctionList" : {
-                                                                    "FunctionName":[ParameterName, ParamterName, ...]
-                                                                 }
-                                            }
-                              }
-              }
- }
- 
- 方案二：
- {
-    "scheme": {
-                "server": {
-                            "key": ClassName,
-                            ...
-                          }
-              }
- }
-
- */
-
-@property (nonatomic, strong) NSDictionary *routeTable;
 
 @end
 
 @implementation TFRouter
 
-+(instancetype)shared {
-    
++ (instancetype)shared {
+    NSLog(@"%s", __func__);
     static dispatch_once_t onceToken;
     static TFRouter *router;
     dispatch_once(&onceToken,^{
@@ -70,8 +39,9 @@
     return router;
 }
 
-- (void)returnError:(NSInteger)errcode localizedDescription:(NSString *)localizedDescription byCompletionBlock:(void(^)(NSError *error, id reponseData))completion
+- (void)returnError:(NSInteger)errcode localizedDescription:(NSString *)localizedDescription byCompletionBlock:(void(^)(NSError *error, TFRouteResponse *reponseData))completion
 {
+    NSLog(@"%s", __func__);
     if (localizedDescription == nil) {
         localizedDescription = @"未知错误";
     }
@@ -84,8 +54,9 @@
 
 
 
-- (void)routeWithUrl:(NSString*)url completion:(void(^)(NSError *error, id reponseData))completion
+- (void)routeWithUrl:(NSString*)url completion:(void(^)(NSError *error, TFRouteResponse *reponseData))completion
 {
+    NSLog(@"%s", __func__);
     if (url == nil) {
         [self returnError:-1 localizedDescription:nil byCompletionBlock:completion];
         return;
@@ -104,6 +75,7 @@
 
 - (void)routeWithRequest:(TFRouteRequest*)request completion:(void(^)(NSError *error, TFRouteResponse *reponse))completion
 {
+    NSLog(@"%s", __func__);
     if (request == nil) {
         [self returnError:-1 localizedDescription:nil byCompletionBlock:completion];
         return;
@@ -117,17 +89,22 @@
 }
 
 
-- (void)routeWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameterDict completion:(void(^)(NSError *error, id reponseData))completion
+- (void)routeWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameterDict completion:(void(^)(NSError *error, TFRouteResponse *reponseData))completion
 {
+    NSLog(@"%s", __func__);
     
     TFRouteRequest *request = [[TFRouteRequest alloc] initWithScheme:scheme server:server key:key parameter:parameterDict];
     self.request = request;
 
     if (self.routeTable == nil) {
-        [self returnError:-1 localizedDescription:nil byCompletionBlock:completion];
+        [self returnError:-1 localizedDescription:@"路由表为空" byCompletionBlock:completion];
         return;
     }
     
+    if (self.routeTable[server] == nil) {
+        [self returnError:-1 localizedDescription:@"当前域名不支持路由" byCompletionBlock:completion];
+        return;
+    }
     
     if (scheme != nil && [scheme isEqualToString:@"action"]) {
         NSLog(@"暂不支持操作");
@@ -137,10 +114,12 @@
         return;
     }
     else {
+        
+        NSDictionary *viewControllerNames = self.routeTable[server][@"ViewController"];
     
-        if (self.routeTable[scheme][server][key]) {
+        if (viewControllerNames && viewControllerNames[key]) {
             // 获取类名
-            NSString *className = self.routeTable[scheme][server][key];
+            NSString *className = viewControllerNames[key];
             
             Class clazz = NSClassFromString(className);
             
@@ -162,6 +141,27 @@
                     
                     NSString *name = [NSString stringWithCString:cName encoding:NSUTF8StringEncoding];
                     [classPropertyArray addObject:name];
+                }
+                free(properties);
+                
+                // 上面的方法只能取到当前类的属性列表，还应循环取出所有父类的属性列表
+                Class superClass = class_getSuperclass(clazz);
+                while (superClass) {
+                    @autoreleasepool {
+                        unsigned int count;
+                        objc_property_t *properties = class_copyPropertyList(superClass, &count);
+                        for (int i = 0; i < count; i++) {
+                            
+                            objc_property_t property = properties[i];
+                            
+                            const char *cName = property_getName(property);
+                            
+                            NSString *name = [NSString stringWithCString:cName encoding:NSUTF8StringEncoding];
+                            [classPropertyArray addObject:name];
+                        }
+                        free(properties);
+                        superClass = class_getSuperclass(superClass);
+                    }
                 }
                 
                 // 设置相应的属性
@@ -203,6 +203,7 @@
 
 - (void)routeToDefultViewController:(void(^)(NSError *error, id reponseData))completion
 {
+    NSLog(@"%s", __func__);
     RouteDefaultViewController *viewController = [[RouteDefaultViewController alloc] init];
     
     if (self.request.url != nil) {
@@ -214,11 +215,12 @@
 
 - (void)routeToViewController:(UIViewController *)viewController completion:(void(^)(NSError *error, id reponseData))completion
 {
+    NSLog(@"%s", __func__);
     UIView *preloadView = viewController.view;// 预先加载View
     NSLog(@"routeTo: %@ %@", NSStringFromClass([viewController class]), NSStringFromCGRect(preloadView.frame));
     
     // 获取当前顶层视图
-    UIViewController *currentVC = [UIViewController getCurrentVC];
+    UIViewController *currentVC = [self getCurrentVC];
     
     if (currentVC.navigationController != nil) {
         [currentVC.navigationController pushViewController:viewController animated:YES];
@@ -248,6 +250,71 @@
 
 }
 
+
+
+- (UIViewController *)getCurrentVC{
+    NSLog(@"%s", __func__);
+    
+    UIViewController *result = nil;
+    
+    // 找到当前window
+    UIWindow * window = [[[UIApplication sharedApplication] delegate] window];// iOS 9以前可以用[[UIApplication sharedApplication] keyWindow];获取，但iOS 9以后已经获取不到了，需要用这种方式获取
+    
+    //app默认windowLevel是UIWindowLevelNormal，如果不是，找到UIWindowLevelNormal的
+    if (window.windowLevel != UIWindowLevelNormal)
+    {
+        NSArray *windows = [[UIApplication sharedApplication] windows];
+        for(UIWindow * tmpWin in windows)
+        {
+            if (tmpWin.windowLevel == UIWindowLevelNormal)
+            {
+                window = tmpWin;
+                break;
+            }
+        }
+    }
+    
+    //
+    result = window.rootViewController;
+    
+    //    如果是present上来的appRootVC.presentedViewController 不为nil
+    if (result.presentedViewController) {
+        result = result.presentedViewController;// present出来的ViewContrller才是最前面的ViewController
+    }
+    
+    // UITabBarController 包含 UINavigationController 或 UIViewController 的情况
+    if ([result isKindOfClass:[UITabBarController class]]){
+        UITabBarController * tabbar = (UITabBarController *)result;
+        result = tabbar.selectedViewController ; //上下两种写法都行
+        //        result = (UINavigationController *)tabbar.viewControllers[tabbar.selectedIndex];
+        
+        if ([result isKindOfClass:[UINavigationController class]]){
+            UINavigationController *nav = (UINavigationController *)result;
+            result = nav.topViewController;//上下两种写法都行
+            
+            //        UIViewController * nav = (UIViewController *)result;
+            //        result = nav.childViewControllers.lastObject;
+        }
+        
+    }
+    
+    // UINavigationController 包含 UITabBarController 或 UIViewController 的情况
+    if ([result isKindOfClass:[UINavigationController class]]){
+        UINavigationController *nav = (UINavigationController *)result;
+        result = nav.topViewController;//上下两种写法都行
+        
+        //        UIViewController * nav = (UIViewController *)result;
+        //        result = nav.childViewControllers.lastObject;
+        
+        if ([result isKindOfClass:[UITabBarController class]]){
+            UITabBarController * tabbar = (UITabBarController *)result;
+            result = tabbar.selectedViewController ; //上下两种写法都行
+            //        result = (UINavigationController *)tabbar.viewControllers[tabbar.selectedIndex];
+        }
+    }
+    
+    return result;
+}
 
 
 @end

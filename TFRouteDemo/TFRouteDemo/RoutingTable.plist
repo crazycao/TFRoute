@@ -2,9 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>push</key>
+	<key>m.taofen8.com</key>
 	<dict>
-		<key>m.taofen8.com</key>
+		<key>ViewController</key>
 		<dict>
 			<key>ai</key>
 			<string>AiTaoBaoWebViewController</string>
@@ -21,18 +21,112 @@
 			<key>bw</key>
 			<string>BaseWebViewController</string>
 			<key>ca</key>
-			<string>CategoryViewController</string>
+			<string>CavilDetailViewController</string>
 			<key>ccs</key>
 			<string>ContactServiceViewController</string>
 			<key>cd</key>
-			<string>CavilDetailViewController</string>
+			<string>CategoryViewController</string>
 			<key>ch</key>
 			<string>ChargeController</string>
 			<key>cjd</key>
 			<string>JDCartWebViewController</string>
 			<key>clb</key>
 			<string>CavilLabelViewController</string>
+			<key>ed</key>
+			<string>CavilEditorViewController</string>
+			<key>fb</key>
+			<string>FeedbackViewController2</string>
+			<key>fl</key>
+			<string>MyFanliViewController</string>
+			<key>h</key>
+			<string>NewHomePageViewController</string>
+			<key>haihu</key>
+			<string>HaihuWebViewController</string>
+			<key>his</key>
+			<string>UserItemHistoryViewController</string>
+			<key>iid</key>
+			<string>ItemInfoViewController</string>
+			<key>inr</key>
+			<string>InviteRecordController</string>
+			<key>inv</key>
+			<string>InviteViewController</string>
+			<key>kw</key>
+			<string>SearchResultViewController</string>
+			<key>lb</key>
+			<string>LabelViewController</string>
+			<key>ma</key>
+			<string>MallViewController</string>
+			<key>mb</key>
+			<string>MyBagViewController</string>
+			<key>md</key>
+			<string>MallDetailViewController</string>
+			<key>mi</key>
+			<string>MineInfoViewController</string>
+			<key>mjd</key>
+			<string>JDWebViewController</string>
+			<key>ml</key>
+			<string>MyLikeViewController</string>
+			<key>mnw</key>
+			<string>MaNaoWanWebViewController</string>
+			<key>mo</key>
+			<string>MoreViewController</string>
+			<key>msg</key>
+			<string>MessageListViewController</string>
+			<key>msgd</key>
+			<string>MessageDetailViewController</string>
+			<key>msgl</key>
+			<string>HomeMessageListViewController</string>
+			<key>ne</key>
+			<string>NewEggViewController</string>
+			<key>qo</key>
+			<string>QueryOrderViewController</string>
+			<key>qr</key>
+			<string>ScanViewController</string>
+			<key>rd</key>
+			<string>ItemInfoNewViewController</string>
+			<key>rp</key>
+			<string>RedPacketViewController</string>
+			<key>rm</key>
+			<string>ReplyMineViewController</string>
+			<key>sb</key>
+			<string>StealthBuyWebViewController</string>
+			<key>se</key>
+			<string>SearchViewController</string>
+			<key>sh</key>
+			<string>PushShakeViewController</string>
+			<key>shr</key>
+			<string>MyFanliListViewController</string>
+			<key>sk</key>
+			<string>ShakeViewController</string>
+			<key>sr</key>
+			<string>TaskCenterViewController</string>
+			<key>sl</key>
+			<string>SuperItemListViewController</string>
+			<key>sco</key>
+			<string>ScoopListViewController</string>
+			<key>sd</key>
+			<string>ScoopDetailViewController</string>
+			<key>sc</key>
+			<string>SuperCouponsViewController</string>
+			<key>scd</key>
+			<string>SuperCouponsDetailWebViewController</string>
+			<key>tcl</key>
+			<string>CollectItemViewController</string>
+			<key>tmb</key>
+			<string>MustBuyViewController</string>
+			<key>ts</key>
+			<string>TaobaoFanliViewController</string>
+			<key>tt</key>
+			<string>CavilListViewController</string>
+			<key>tw</key>
+			<string>TaobaoWebViewController</string>
+			<key>wl</key>
+			<string>WebViewController</string>
+			<key>wi</key>
+			<string>MyLikeWillInvalidViewController</string>
 		</dict>
+		<key>Action</key>
+		<dict/>
 	</dict>
 </dict>
 </plist>

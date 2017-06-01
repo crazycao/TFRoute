@@ -14,6 +14,38 @@
 @interface TFRouter : NSObject
 
 
+/*
+ @param routeTable 从RouteTable.plist读取的路由表
+ 
+ 方案一：
+ {
+ "scheme": {
+ "server": {
+ "key": {
+ "ClassName" : ClassName,
+ "PropertyList" : [PropertyName, PropertyName, ...],
+ "FunctionList" : {
+ "FunctionName":[ParameterName, ParamterName, ...]
+ }
+ }
+ }
+ }
+ }
+ 
+ 方案二：
+ {
+ "scheme": {
+ "server": {
+ "key": ClassName,
+ ...
+ }
+ }
+ }
+ 
+ */
+
+@property (nonatomic, strong) NSDictionary *routeTable;
+
 /**
  初始化
  */
@@ -34,7 +66,7 @@
  @param completion 支持回调
  
  */
-- (void)routeWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameter completion:(void(^)(NSError *error, id reponseData))completion;
+- (void)routeWithScheme:(NSString *)scheme server:(NSString *)server key:(NSString *)key parameter:(NSDictionary *)parameter completion:(void(^)(NSError *error, TFRouteResponse *reponseData))completion;
 
 /**
  外部调用
@@ -55,7 +87,7 @@
  */
 
 
-- (void)routeWithUrl:(NSString*)url completion:(void(^)(NSError *error, id reponseData))completion;
+- (void)routeWithUrl:(NSString*)url completion:(void(^)(NSError *error, TFRouteResponse *reponseData))completion;
 
 
 - (void)routeWithRequest:(TFRouteRequest*)request completion:(void(^)(NSError *error, TFRouteResponse *reponse))completion;

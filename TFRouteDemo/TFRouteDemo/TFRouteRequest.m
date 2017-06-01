@@ -31,7 +31,7 @@
     if (self) {
         _urlInfo = urlInfo;
         
-        _url = [NSString stringWithFormat:@"%@://%@/%@", urlInfo.scheme, urlInfo.server, urlInfo.key];
+        _url = [NSString stringWithFormat:@"http://%@/%@", urlInfo.server, urlInfo.key];
         
         if (urlInfo.parameter != nil) {
             NSString *parameterString = [self createStringFromParameter:urlInfo.parameter];
@@ -54,7 +54,7 @@
         urlInfo.parameter = parameter;
         
         _urlInfo = urlInfo;
-        _url = [NSString stringWithFormat:@"%@://%@/%@", urlInfo.scheme, urlInfo.server, urlInfo.key];
+        _url = [NSString stringWithFormat:@"http://%@/%@", urlInfo.server, urlInfo.key];
         
         if (urlInfo.parameter != nil) {
             NSString *parameterString = [self createStringFromParameter:urlInfo.parameter];
