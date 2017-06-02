@@ -98,4 +98,8 @@
 
 @property (nonatomic, strong) NSString *routeDefaultClassName;
 
+
+- (void)pushViewController:(UIViewController *)viewController byViewController:(UIViewController *)currentViewController completion:(void (^ __nullable)(void))completion;
+- (void)presentViewController:(UIViewController *)viewController byViewController:(UIViewController *)currentViewController completion:(void (^ __nullable)(void))completion;
+
 @end

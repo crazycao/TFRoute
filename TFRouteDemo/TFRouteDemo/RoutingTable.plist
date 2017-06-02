@@ -4,6 +4,18 @@
 <dict>
 	<key>m.taofen8.com</key>
 	<dict>
+		<key>PushScheme</key>
+		<array>
+			<string>taofen8-push</string>
+		</array>
+		<key>PresentScheme</key>
+		<array>
+			<string>taofen8-present</string>
+		</array>
+		<key>ShowScheme</key>
+		<array>
+			<string>taofen8-show</string>
+		</array>
 		<key>ViewController</key>
 		<dict>
 			<key>ai</key>

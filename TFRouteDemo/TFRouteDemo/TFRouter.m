@@ -11,6 +11,8 @@
 #import <UIKit/UIKit.h>
 #import "RouteDefaultViewController.h"
 
+typedef void(^CompletionBlock)(void);
+
 
 #define TFRouterErrorDomain @"TFRouterErrorDomain"
 
@@ -222,32 +224,28 @@
     // 获取当前顶层视图
     UIViewController *currentVC = [self getCurrentVC];
     
-    if (currentVC.navigationController != nil) {
-        [currentVC.navigationController pushViewController:viewController animated:YES];
-        
-        TFRouteResponse *response = [[TFRouteResponse alloc] initWithUrl:self.request.url statusCode:200];
+    __block TFRouter *blockSelf = self;
+    void (^completionBlock)(void) = ^{
+        TFRouteResponse *response = [[TFRouteResponse alloc] initWithUrl:blockSelf.request.url statusCode:200];
         response.source = currentVC;
         response.target = viewController;
         
-        self.response = response;
+        blockSelf.response = response;
         completion(nil, response);
-    }
-    else {
-        
-        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
-        
-        __block TFRouter *blockSelf = self;
-        [currentVC presentViewController:navigationController animated:YES completion:^{
-            
-            TFRouteResponse *response = [[TFRouteResponse alloc] initWithUrl:blockSelf.request.url statusCode:200];
-            response.source = currentVC;
-            response.target = viewController;
-            
-            blockSelf.response = response;
-            completion(nil, response);
-        }];
-    }
+    };
 
+    
+    NSArray *presentSchemeArray = self.routeTable[self.request.urlInfo.server][@"PresentScheme"];
+    if (presentSchemeArray != nil) {
+        if (self.request.urlInfo.scheme && [presentSchemeArray containsObject:self.request.urlInfo.scheme]) {
+            // 当scheme存在于PresentScheme列表中时，采用present方式打开
+            [self presentViewController:viewController byViewController:currentVC completion:completionBlock];
+            return;
+        }
+    }
+    
+    // 其他情况采用push方式打开，注意如果currentVC不含navigationController，仍然用present方式打开
+    [self pushViewController:viewController byViewController:currentVC completion:completionBlock];
 }
 
 
@@ -316,5 +314,27 @@
     return result;
 }
 
+
+- (void)pushViewController:(UIViewController *)viewController byViewController:(UIViewController *)currentViewController completion:(void (^ __nullable)(void))completion
+{
+    if (currentViewController.navigationController != nil) {
+        [currentViewController.navigationController pushViewController:viewController animated:YES];
+        completion();
+    }
+    else {
+        
+        UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+        
+        [currentViewController presentViewController:navigationController animated:YES completion:completion];
+    }
+
+}
+
+- (void)presentViewController:(UIViewController *)viewController byViewController:(UIViewController *)currentViewController completion:(void (^ __nullable)(void))completion
+{
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    
+    [currentViewController presentViewController:navigationController animated:YES completion:completion];
+}
 
 @end
